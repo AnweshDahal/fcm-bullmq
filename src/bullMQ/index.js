@@ -13,6 +13,7 @@ const notificationQueue = new Queue("notification-pool", {
   defaultJobOptions: {
     removeOnComplete: true,
     removeOnFail: true,
+    attempts: 1,
   },
 });
 
