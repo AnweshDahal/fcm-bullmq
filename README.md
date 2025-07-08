@@ -1,5 +1,8 @@
 # FCM + BullMQ
 
+### Requirements
+- Redis
+
 This microservice helps you to schedule FCM notifications
 
 ## Generating Private Key/ Public Key pair for authentication
