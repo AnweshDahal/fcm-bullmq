@@ -1,6 +1,7 @@
 # FCM + BullMQ
 
 ### Requirements
+
 - Redis
 
 This microservice helps you to schedule FCM notifications
@@ -17,6 +18,12 @@ This microservice helps you to schedule FCM notifications
 > Copy the private key to your app and use it to sign JWT tokens, and use the public key to verify the the requests in this service
 
 > **Make sure that you sign tokens with short lifespan (max 5m)**
+
+## Setup
+
+1. Save the service account credentials from firebase in keys folder as `firebase_admin_key.json`
+2. Save the public key generated above as `public.key` in keys folder
+3. Setup the `.env`
 
 ## Registering a new job
 
