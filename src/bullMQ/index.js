@@ -30,6 +30,8 @@ const notificationWorker = new Worker(
         title: job.data.title,
         body: job.data.body,
       });
+      await notificationQueue.clean(0, 1000, "failed");
+      await notificationQueue.clean(0, 1000, "completed");
     }
   },
   {
