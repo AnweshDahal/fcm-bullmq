@@ -3,6 +3,8 @@ const express = require("express");
 const moment = require("moment");
 const { notificationQueue } = require("./bullMQ");
 require("dotenv").config({ path: `${__dirname}/../.env` });
+const jsonwebtoken = require("jsonwebtoken");
+const fs = require("fs");
 
 const app = express();
 
@@ -19,50 +21,92 @@ app.get("/", (req, res) => {
   });
 });
 
-app.post("/queue/add", async (req, res) => {
-  if (!req.body.FCMToken) {
-    res.status(422).json({
-      message: "Device FCM Token is required",
-      data: null,
-    });
-  }
-
-  if (!req.body.title) {
-    res.status(422).json({
-      message: "Message title is required",
-      data: null,
-    });
-  }
-
-  if (!req.body.body) {
-    res.status(422).json({
-      message: "Message body is required",
-      data: null,
-    });
-  }
-
-  if (!req.body.triggerOn) {
-    res.status(422).json({
-      message: "Trigger time is required",
-      data: null,
-    });
-  }
-  const delay = moment.unix(req.body.triggerOn).utc().diff(moment());
-  // ? Add a new job to queue
-  await notificationQueue.add(
-    "send-notification",
-    {
-      title: req.body.title,
-      body: req.body.body,
-      FCMToken: req.body.FCMToken,
-    },
-    {
-      delay,
-      attempts: 2,
-      removeOnComplete: true,
+app.post(
+  "/queue/add",
+  async (req, res, next) => {
+    try {
+      const publicKey = fs.readFileSync("./keys/public.key");
+      if (req.headers.authorization) {
+        jsonwebtoken.verify(
+          req.headers.authorization,
+          publicKey,
+          (err, decoded) => {
+            if (err) {
+              res.status(403).json({
+                message: "Invalid Token",
+                data: null,
+              });
+            } else {
+              next();
+            }
+          }
+        );
+      } else {
+        res.status(403).json({
+          message: "Token not supplied",
+          data: null,
+        });
+      }
+    } catch (err) {
+      console.error("[Error: Queue/Add]", err);
+      res.status(500).json({
+        message: "Internale Server Error",
+        data: null,
+      });
     }
-  );
-});
+  },
+  async (req, res) => {
+    if (!req.body.FCMToken) {
+      res.status(422).json({
+        message: "Device FCM Token is required",
+        data: null,
+      });
+    }
+
+    if (!req.body.title) {
+      res.status(422).json({
+        message: "Message title is required",
+        data: null,
+      });
+    }
+
+    if (!req.body.body) {
+      res.status(422).json({
+        message: "Message body is required",
+        data: null,
+      });
+    }
+
+    if (!req.body.triggerOn) {
+      res.status(422).json({
+        message: "Trigger time is required",
+        data: null,
+      });
+    }
+    const delay =
+      parseInt(req.body.triggerOn) - moment().utc().unix().valueOf(); // must be epoch in UTC+00:00
+
+    // ? Add a new job to queue
+    await notificationQueue.add(
+      "send-notification",
+      {
+        title: req.body.title,
+        body: req.body.body,
+        FCMToken: req.body.FCMToken,
+      },
+      {
+        delay,
+        attempts: 2,
+        removeOnComplete: true,
+        removeOnFail: true,
+      }
+    );
+
+    res.status(200).json({
+      message: "Job Added",
+    });
+  }
+);
 
 app.listen(app.get("port"), () => {
   console.log(`listening on port ${app.get("port")} in ${app.get("env")} mode`);

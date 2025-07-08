@@ -1,6 +1,6 @@
 const admin = require("../firebase");
 
-export const sendMessage = async ({ deviceFCMToken, title, body }) => {
+module.exports = async ({ deviceFCMToken, title, body }) => {
   return admin
     .messaging()
     .send({
