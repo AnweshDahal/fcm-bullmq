@@ -10,6 +10,10 @@ const connection = new Redis({
 
 const notificationQueue = new Queue("notification-pool", {
   connection,
+  defaultJobOptions: {
+    removeOnComplete: true,
+    removeOnFail: true,
+  },
 });
 
 notificationQueue.on("waiting", (job) => {
