@@ -5,17 +5,44 @@ const { notificationQueue } = require("./bullMQ");
 require("dotenv").config({ path: `${__dirname}/../.env` });
 const jsonwebtoken = require("jsonwebtoken");
 const fs = require("fs");
-const statusMonitor = require("express-status-monitor");
+
+const doctor = require("./utils/startUpTest");
 
 const app = express();
-
+const { rateLimit } = require("express-rate-limit");
+const path = require("path");
 app.use(cors());
 
 app.use(express.json());
 
-app.use(statusMonitor());
-
 app.set("port", process.env.PORT || 3000);
+
+if (process.env.USE_RATE_LIMIT) {
+  try {
+    app.use(
+      rateLimit({
+        windowMs: process.env.RATE_LIMITER_WINDOW_SIZE
+          ? parseInt(process.env.RATE_LIMITER_WINDOW_SIZE) * 60 * 1000
+          : 10 * 60 * 1000, // each window is 10 mins long
+        limit: process.env.RATE_LIMITER_COUNT
+          ? parseInt(process.env.RATE_LIMITER_COUNT)
+          : 100,
+        standardHeaders: "draft-8",
+        legacyHeaders: false,
+      })
+    );
+  } catch (err) {
+    console.error("[Error: Rate Limiter]", err);
+    app.use(
+      rateLimit({
+        windowMs: 10 * 60 * 1000, // each window is 10 mins long
+        limit: 100,
+        standardHeaders: "draft-8",
+        legacyHeaders: false,
+      })
+    );
+  }
+}
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -28,7 +55,8 @@ app.post(
   "/queue/add",
   async (req, res, next) => {
     try {
-      const publicKey = fs.readFileSync("./keys/public.key");
+      const FILEPATH = path.join(__dirname, "./keys/public.key");
+      const publicKey = fs.readFileSync(FILEPATH, "utf-8");
       if (req.headers.authorization) {
         jsonwebtoken.verify(
           req.headers.authorization,
@@ -118,5 +146,18 @@ app.post(
 );
 
 app.listen(app.get("port"), () => {
-  console.log(`listening on port ${app.get("port")} in ${app.get("env")} mode`);
+  doctor(true)
+    .catch((err) => {
+      console.error("Error starting up service:", err);
+    })
+    .finally(() => {
+      console.log(
+        `Service is started on ${process.env.NODE_ENV} mode at ${new Date()}`
+      );
+      console.log(
+        `Service is running on port ${app.get(
+          "port"
+        )} and is accessible via localhost`
+      );
+    });
 });

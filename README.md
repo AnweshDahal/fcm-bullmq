@@ -23,7 +23,21 @@ This microservice helps you to schedule FCM notifications
 
 1. Save the service account credentials from firebase in keys folder as `firebase_admin_key.json`
 2. Save the public key generated above as `public.key` in keys folder
-3. Setup the `.env`
+3. Setup the `.env` by running the following command
+
+```bash
+npm run genEnv
+# or
+node ./src/utils/startUpTest.js gen_env
+```
+
+4. After everything is setup run to verify your installation
+
+```bash
+npm run doctor
+# or
+node ./src/utils/startUpTest.js doctor
+```
 
 ## Registering a new job
 
