@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon ./src/index.js",
     "genEnv": "node ./src/utils/startUpTest.js gen_env",
-    "doctor": "node ./src/utils/startUpTest.js check"
+    "doctor": "node ./src/utils/startUpTest.js doctor"
   },
   "author": "Anwesh Dahal",
   "license": "MIT",
