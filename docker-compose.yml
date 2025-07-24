@@ -1,5 +1,11 @@
 version: "3.8"
 services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
   redis:
     image: redis:8.0.3-alpine
     ports:
@@ -8,12 +14,6 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis:/data
-  app:
-    build: .
-    ports:
-      - "5000:5000"
-    depends_on:
-      - redis
 
 volumes:
   redis:
