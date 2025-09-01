@@ -1,3 +1,6 @@
+const jsonwebtoken = require("jsonwebtoken");
+const fs = require("fs");
+
 async (req, res, next) => {
   try {
     const FILEPATH = path.join(__dirname, "./keys/public.key");

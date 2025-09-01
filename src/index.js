@@ -3,8 +3,6 @@ const express = require("express");
 const moment = require("moment");
 const { notificationQueue } = require("./bullMQ");
 require("dotenv").config({ path: `${__dirname}/../.env` });
-const jsonwebtoken = require("jsonwebtoken");
-const fs = require("fs");
 
 const doctor = require("./utils/startUpTest");
 
