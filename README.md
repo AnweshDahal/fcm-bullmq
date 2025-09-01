@@ -10,7 +10,7 @@ This microservice helps you to schedule FCM notifications
 
 ```bash
   # Generate a private key
-  openssl genpkey -algorithm RSA -out private.key -pkeyopot rsa_keygen_bits:2048
+  openssl genpkey -algorithm RSA -out private.key -pkeyopt rsa_keygen_bits:2048
   # Generating public key from the private key
   openssl rsa -pubout -in private.key -out public.key
 ```
