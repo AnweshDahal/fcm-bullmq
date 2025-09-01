@@ -29,7 +29,7 @@ if (process.env.USE_RATE_LIMIT) {
           : 100,
         standardHeaders: "draft-8",
         legacyHeaders: false,
-      })
+      }),
     );
   } catch (err) {
     console.error("[Error: Rate Limiter]", err);
@@ -39,7 +39,7 @@ if (process.env.USE_RATE_LIMIT) {
         limit: 100,
         standardHeaders: "draft-8",
         legacyHeaders: false,
-      })
+      }),
     );
   }
 }
@@ -51,99 +51,65 @@ app.get("/", (req, res) => {
   });
 });
 
-app.post(
-  "/queue/add",
-  async (req, res, next) => {
-    try {
-      const FILEPATH = path.join(__dirname, "./keys/public.key");
-      const publicKey = fs.readFileSync(FILEPATH, "utf-8");
-      if (req.headers.authorization) {
-        jsonwebtoken.verify(
-          req.headers.authorization,
-          publicKey,
-          (err, decoded) => {
-            if (err) {
-              res.status(403).json({
-                message: "Invalid Token",
-                data: null,
-              });
-            } else {
-              next();
-            }
-          }
-        );
-      } else {
-        res.status(403).json({
-          message: "Token not supplied",
-          data: null,
-        });
-      }
-    } catch (err) {
-      console.error("[Error: Queue/Add]", err);
-      res.status(500).json({
-        message: "Internale Server Error",
+const authMiddleware = require("./authMiddleware");
+
+app.post("/queue/add", authMiddleware, async (req, res) => {
+  try {
+    if (!req.body.FCMToken) {
+      res.status(422).json({
+        message: "Device FCM Token is required",
         data: null,
       });
     }
-  },
-  async (req, res) => {
-    try {
-      if (!req.body.FCMToken) {
-        res.status(422).json({
-          message: "Device FCM Token is required",
-          data: null,
-        });
-      }
 
-      if (!req.body.title) {
-        res.status(422).json({
-          message: "Message title is required",
-          data: null,
-        });
-      }
-
-      if (!req.body.body) {
-        res.status(422).json({
-          message: "Message body is required",
-          data: null,
-        });
-      }
-
-      if (!req.body.triggerOn) {
-        res.status(422).json({
-          message: "Trigger time is required",
-          data: null,
-        });
-      }
-      const delay =
-        (parseInt(req.body.triggerOn) - moment().utc().unix().valueOf()) * 1000; // must be epoch in UTC+00:00
-      console.log("delay", delay);
-      // ? Add a new job to queue
-      await notificationQueue.add(
-        "send-notification",
-        {
-          title: req.body.title,
-          body: req.body.body,
-          FCMToken: req.body.FCMToken,
-        },
-        {
-          delay,
-        }
-      );
-
-      res.status(200).json({
-        message: "Job Added",
-        data: null,
-      });
-    } catch (err) {
-      console.error("[Error: Queue/Add]:", err);
-      res.status(500).json({
-        message: "Internal Server Error",
+    if (!req.body.title) {
+      res.status(422).json({
+        message: "Message title is required",
         data: null,
       });
     }
+
+    if (!req.body.body) {
+      res.status(422).json({
+        message: "Message body is required",
+        data: null,
+      });
+    }
+
+    if (!req.body.triggerOn) {
+      res.status(422).json({
+        message: "Trigger time is required",
+        data: null,
+      });
+    }
+    const delay =
+      (parseInt(req.body.triggerOn) - moment().utc().unix().valueOf()) * 1000; // must be epoch in UTC+00:00
+    console.log("delay", delay);
+    // ? Add a new job to queue
+    await notificationQueue.add(
+      "send-notification",
+      {
+        title: req.body.title,
+        body: req.body.body,
+        FCMToken: req.body.FCMToken,
+      },
+      {
+        delay,
+      },
+    );
+
+    res.status(200).json({
+      message: "Job Added",
+      data: null,
+    });
+  } catch (err) {
+    console.error("[Error: Queue/Add]:", err);
+    res.status(500).json({
+      message: "Internal Server Error",
+      data: null,
+    });
   }
-);
+});
 
 app.listen(app.get("port"), () => {
   doctor(true)
@@ -152,12 +118,12 @@ app.listen(app.get("port"), () => {
     })
     .finally(() => {
       console.log(
-        `Service is started on ${process.env.NODE_ENV} mode at ${new Date()}`
+        `Service is started on ${process.env.NODE_ENV} mode at ${new Date()}`,
       );
       console.log(
         `Service is running on port ${app.get(
-          "port"
-        )} and is accessible via localhost`
+          "port",
+        )} and is accessible via localhost`,
       );
     });
 });
