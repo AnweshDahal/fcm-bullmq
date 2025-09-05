@@ -75,7 +75,7 @@ app.post("/notification/send", async (req, res) => {
       });
     }
 
-    await sendMessage({
+    const notification = await sendMessage({
       deviceFCMToken: req.body.FCMToken,
       title: req.body.title,
       body: req.body.body,
@@ -83,7 +83,7 @@ app.post("/notification/send", async (req, res) => {
 
     res.status(200).json({
       message: "Notification Sent",
-      data: true,
+      data: notification,
     });
   } catch (err) {
     console.error("[Error: Queue/Add]:", err);

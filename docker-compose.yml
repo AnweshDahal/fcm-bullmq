@@ -5,15 +5,15 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - redis
-  redis:
-    image: redis:8.0.3-alpine
+      - valkey
+  valkey:
+    image: valkey:8.1.3-alpine
     ports:
       - "6379:6379"
     restart: always
-    command: redis-server --save 20 1 --loglevel warning
+    command: valkey-server --save 20 1 --loglevel warning
     volumes:
-      - redis:/data
+      - valkey:/data
 
 volumes:
-  redis:
+  valkey:

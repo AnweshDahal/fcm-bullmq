@@ -1,7 +1,7 @@
 const jsonwebtoken = require("jsonwebtoken");
 const fs = require("fs");
-
-async (req, res, next) => {
+const path = require("path");
+module.exports = async (req, res, next) => {
   try {
     const FILEPATH = path.join(__dirname, "./keys/public.key");
     const publicKey = fs.readFileSync(FILEPATH, "utf-8");

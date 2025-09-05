@@ -3,8 +3,8 @@ const sendMessage = require("../utils/sendMessage");
 const Redis = require("ioredis");
 
 const connection = new Redis({
-  host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT,
+  host: process.env.VALKEY_HOST,
+  port: process.env.VALKEY_PORT,
   maxRetriesPerRequest: null,
 });
 
@@ -36,7 +36,7 @@ const notificationWorker = new Worker(
   },
   {
     connection,
-  }
+  },
 );
 
 notificationWorker.on("completed", (job) => {
