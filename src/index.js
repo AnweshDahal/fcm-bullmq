@@ -3,6 +3,7 @@ const express = require("express");
 const moment = require("moment");
 const { notificationQueue } = require("./bullMQ");
 require("dotenv").config({ path: `${__dirname}/../.env` });
+const sendMessage = require("./utils/sendMessage");
 
 const doctor = require("./utils/startUpTest");
 
@@ -50,6 +51,48 @@ app.get("/", (req, res) => {
 });
 
 const authMiddleware = require("./authMiddleware");
+
+app.post("/notification/send", async (req, res) => {
+  try {
+    if (!req.body.FCMToken) {
+      res.status(422).json({
+        message: "Device FCM Token is required",
+        data: null,
+      });
+    }
+
+    if (!req.body.title) {
+      res.status(422).json({
+        message: "Message title is required",
+        data: null,
+      });
+    }
+
+    if (!req.body.body) {
+      res.status(422).json({
+        message: "Message body is required",
+        data: null,
+      });
+    }
+
+    await sendMessage({
+      deviceFCMToken: req.body.FCMToken,
+      title: req.body.title,
+      body: req.body.body,
+    });
+
+    res.status(200).json({
+      message: "Notification Sent",
+      data: true,
+    });
+  } catch (err) {
+    console.error("[Error: Queue/Add]:", err);
+    res.status(500).json({
+      message: "Internal Server Error",
+      data: null,
+    });
+  }
+});
 
 app.post("/queue/add", authMiddleware, async (req, res) => {
   try {
