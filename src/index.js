@@ -52,7 +52,7 @@ app.get("/", (req, res) => {
 
 const authMiddleware = require("./authMiddleware");
 
-app.post("/notification/send", async (req, res) => {
+app.post("/notification/send", authMiddleware, async (req, res) => {
   try {
     if (!req.body.FCMToken) {
       res.status(422).json({
