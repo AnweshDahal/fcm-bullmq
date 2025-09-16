@@ -59,3 +59,11 @@ Make an API call to the endpoint mentioned below
 ```
 
 > In case you want to extend the notification payload you will have to fork it since this setup is for bare-bone notification system
+
+## Changes for Dockerization
+1. Change the value in `VALKEY_HOST` to `valkey`
+2. Change the value in `HOST` to `0.0.0.0`
+3. You might have to make the following addition in `/etc/sysctl.conf`, to suppress warnings from `valkey`
+```config
+vm.overcommit_memory=1
+```

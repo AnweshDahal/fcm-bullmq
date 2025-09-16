@@ -152,7 +152,7 @@ app.post("/queue/add", authMiddleware, async (req, res) => {
   }
 });
 
-app.listen(app.get("port"), () => {
+app.listen(app.get("port"), process.env.HOST, () => {
   doctor(true)
     .catch((err) => {
       console.error("Error starting up service:", err);
