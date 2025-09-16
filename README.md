@@ -58,6 +58,23 @@ Make an API call to the endpoint mentioned below
 }
 ```
 
+## Send a notification
+
+Send an instant notification without using the queue
+
+**Endpoint:** POST `/notification/send`
+
+**Authorization:** Sign a JWT using the private key generated above and send it on `Headers/Authorization`
+
+**Body:**
+
+```json
+{
+  "FCMToken": "XYZ", # The device's FCM token fetched using firebase
+  "title": "Your order is ready", # Title for the notification
+  "body": "Blah Blah Blah...", # Body message
+```
+
 > In case you want to extend the notification payload you will have to fork it since this setup is for bare-bone notification system
 
 ## Using with Docker
