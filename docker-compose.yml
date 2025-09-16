@@ -3,7 +3,7 @@ services:
   notification:
     build: .
     ports:
-      - "5000:5000"
+      - "5005:5005"
     depends_on:
       - valkey
     env_file:
