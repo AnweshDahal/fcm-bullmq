@@ -60,10 +60,33 @@ Make an API call to the endpoint mentioned below
 
 > In case you want to extend the notification payload you will have to fork it since this setup is for bare-bone notification system
 
-## Changes for Dockerization
-1. Change the value in `VALKEY_HOST` to `valkey`
-2. Change the value in `HOST` to `0.0.0.0`
-3. You might have to make the following addition in `/etc/sysctl.conf`, to suppress warnings from `valkey`
+## Using with Docker
+1. Install Docker
+```bash
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+# Install Docker
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+2. Change the value in `VALKEY_HOST` to `valkey` (You need to have ran `npm run genEnv` before hand)
+3. Change the value in `HOST` to `0.0.0.0`
+4. You might have to make the following addition in `/etc/sysctl.conf`, to suppress warnings from `valkey`
 ```config
 vm.overcommit_memory=1
+```
+5. Build and start a container
+```bash
+docker compose up -d --build # detach container and build images before running
 ```
