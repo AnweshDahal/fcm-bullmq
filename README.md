@@ -2,7 +2,7 @@
 
 ### Requirements
 
-- Redis
+- Valkey (Redis)
 
 This microservice helps you to schedule FCM notifications
 
