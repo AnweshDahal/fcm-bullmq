@@ -103,7 +103,13 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 ```config
 vm.overcommit_memory=1
 ```
-5. Build and start a container
+5. Add your user to docker group to use docker without sudo
+```bash
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+```
+6. Build and start a container
 ```bash
 docker compose up -d --build # detach container and build images before running
 ```
