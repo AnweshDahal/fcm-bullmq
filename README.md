@@ -113,3 +113,10 @@ newgrp docker
 ```bash
 docker compose up -d --build # detach container and build images before running
 ```
+
+## Known Bugs
+1. `XYZ package not found.`, this occurs due to build cache to fix this remove all existing images and containers, and run the following command
+```bash
+docker compose build --no-cache
+docker compose build up -d --force-recreate
+```
